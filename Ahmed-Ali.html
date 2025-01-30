@@ -6,6 +6,117 @@
     <title>Ahmed Ali</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <style>
+        /* styles.css */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #1c1c1c;  /* Dark background for the entire page */
+    height: 100vh;
+    padding: 0 px;
+}
+
+.chat-container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    background-color: #000;  /* Main container background color */
+    color: white;  /* White text */
+    padding: 10px;
+    overflow: hidden;
+}
+
+.chatbox {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    color: white;
+}
+
+.input-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    background-color: #222;  /* Input container background */
+    border-radius: 8px;
+}
+
+input[type="text"] {
+    width: 85%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    font-size: 16px;
+    background-color: #111;
+    color: #f1f1f1;
+    transition: all 0.3s ease-in-out;
+}
+
+input[type="text"]:focus {
+    border-color: #f1c40f;  /* Highlight the input when focused */
+    outline: none;
+}
+
+#send-btn {
+    width: 14%;
+    padding: 12px;
+    background: linear-gradient(145deg, #f1c40f, #f39c12);
+    border: none;
+    color: #333;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.3s ease-in-out;
+}
+
+#send-btn:hover {
+    background-color: #f39c12;
+    transform: translateY(-3px);  /* Adds a subtle hover effect */
+}
+
+#send-btn:active {
+    transform: translateY(0);  /* Reset the hover effect when clicked */
+}
+
+.user-msg, .assistant-msg {
+    padding: 12px;
+    border-radius: 15px;
+    max-width: 70%;
+    word-wrap: break-word;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);  /* Added shadow for depth */
+}
+
+.user-msg {
+    background-color: #f39c12;
+    align-self: flex-end;
+    color: #333;
+    border-radius: 20px 20px 0 20px;  /* Rounded corners for user message */
+}
+
+.assistant-msg {
+    background-color: #555;
+    align-self: flex-start;
+    color: #f1f1f1;
+    border-radius: 20px 20px 20px 0;  /* Rounded corners for assistant message */
+}
+nav{
+    position: sticky;
+    top: 1;
+    width: 100%;
+}
+    </style>
 </head>
 <body>
     <header>
@@ -31,11 +142,202 @@
                   <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
                   <button class="btn btn-outline-success" type="submit">Search</button>
                 </form>
-              </div>
             </div>
-          </nav>
-    </header>
-
+        </div>
+    </nav>
+</header>
+          <div class="chat-container">
+            <div class="chatbox" id="chatbox">
+                <!-- Messages will appear here -->
+            </div>
+            <div class="input-container">
+                <input type="text" id="user-input" placeholder="Ask me something..." />
+                <button id="send-btn">Send</button>
+            </div>
+        </div>
     
+    <script>// Event listener for the send button
+        document.getElementById('send-btn').addEventListener('click', sendMessage);
+        
+        // Event listener for pressing Enter key
+        document.getElementById('user-input').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent the default "Enter" behavior (new line in the input)
+                sendMessage();
+            }
+        });
+        
+        // Function to send message
+        function sendMessage() {
+            let userInput = document.getElementById('user-input').value.trim();
+            if (userInput !== "") {
+                addMessage(userInput, 'user');  // Add user message to the chat
+                document.getElementById('user-input').value = "";  // Clear the input field
+                generateAssistantResponse(userInput);  // Generate assistant's response
+            }
+        }
+        
+        // Function to add messages to the chatbox
+        function addMessage(message, sender) {
+            const chatbox = document.getElementById('chatbox');
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add(sender === 'user' ? 'user-msg' : 'assistant-msg');
+            msgDiv.textContent = message;
+            chatbox.appendChild(msgDiv);
+            chatbox.scrollTop = chatbox.scrollHeight;  // Auto-scroll to the bottom
+        }
+        
+        // Function to generate assistant's response based on user input
+        function generateAssistantResponse(userMessage) {
+            let assistantResponse = "";
+        
+            // Normalize the message to make comparison easier
+            userMessage = userMessage.toLowerCase();
+        
+            // Switch case to handle different user inputs
+            switch (true) {
+                case /what is your name\?/i.test(userMessage):
+                    assistantResponse = getRandomResponse([
+                        "I am your personal assistant. How can I help you today?",
+                        "Call me your friendly assistant! What can I do for you?"
+                    ]);
+                    break;
+        
+                case /what can you do\?/i.test(userMessage):
+                    assistantResponse = getRandomResponse([
+                        "I can tell jokes, share quotes, or help you with some basic info.",
+                        "I can assist you with a variety of tasks, like telling jokes or giving advice!"
+                    ]);
+                    break;
+        
+                case /how are you\?/i.test(userMessage):
+                    assistantResponse = getRandomResponse([
+                        "I’m doing great, thank you for asking! How about you?",
+                        "I’m just a bunch of code, but I’m feeling pretty great today! What’s on your mind?"
+                    ]);
+                    break;
+        
+                case /tell me a joke\?/i.test(userMessage):
+                    assistantResponse = getRandomResponse([
+                        "Why don’t skeletons fight each other? They don’t have the guts!",
+                        "Why did the scarecrow win an award? Because he was outstanding in his field!"
+                    ]);
+                    break;
+        
+                case /give me a quote\?/i.test(userMessage):
+                    assistantResponse = getRandomResponse([
+                        "'The only way to do great work is to love what you do.' – Steve Jobs",
+                        "'In the middle of difficulty lies opportunity.' – Albert Einstein"
+                    ]);
+                    break;
+        
+                case /what is 2 \+ 2\?/i.test(userMessage):
+                    assistantResponse = getRandomResponse([
+                        "2 + 2 is 4! Always happy to help with math.",
+                        "Ah, simple math! 2 + 2 equals 4."
+                    ]);
+                    break;
+        
+                case /can you help me with something\?/i.test(userMessage):
+                    assistantResponse = getRandomResponse([
+                        "Of course! What do you need help with?",
+                        "I’m here to assist. What can I help you with?"
+                    ]);
+                    break;
+        
+                case /goodbye/i.test(userMessage):
+                    assistantResponse = getRandomResponse([
+                        "Goodbye! Feel free to chat with me anytime.",
+                        "Take care! I'll be here if you need me."
+                    ]);
+                    break;
+        
+                // Greetings (English)
+                case /hey/i.test(userMessage):
+                    assistantResponse = getRandomResponse([
+                        "Hey there! How can I assist you today?",
+                        "Hello! What's up?"
+                    ]);
+                    break;
+        
+                case /hi/i.test(userMessage):
+                    assistantResponse = getRandomResponse([
+                        "Hi! How’s it going?",
+                        "Hey! What can I do for you today?"
+                    ]);
+                    break;
+        
+                case /hello/i.test(userMessage):
+                    assistantResponse = getRandomResponse([
+                        "Hello! How can I help you?",
+                        "Hey there! What’s on your mind?"
+                    ]);
+                    break;
+        
+                // Greetings (Roman Urdu)
+                case /assalamualaikum/i.test(userMessage):
+                    assistantResponse = getRandomResponse([
+                        "Wa Alaikum Assalam! How can I help you today?",
+                        "Wa Alaikum Assalam! How are you doing?"
+                    ]);
+                    break;
+        
+                case /hi there/i.test(userMessage):
+                    assistantResponse = getRandomResponse([
+                        "Hi there! Ready to chat?",
+                        "Hey! What can I do for you?"
+                    ]);
+                    break;
+        
+                case /kaise ho\?/i.test(userMessage):  // Roman Urdu: "How are you?"
+                    assistantResponse = getRandomResponse([
+                        "Main bilkul theek hoon, shukriya! Aap kaise hain?",
+                        "Main achha hoon! Aap kaise ho?"
+                    ]);
+                    break;
+        
+                case /tumhara naam kya hai\?/i.test(userMessage):  // Roman Urdu: "What's your name?"
+                    assistantResponse = getRandomResponse([
+                        "Mera naam aapka personal assistant hai. Aap se milke accha laga!",
+                        "Mujhe bas aapka madadgaar assistant samjho!"
+                    ]);
+                    break;
+        
+                case /aap kya kar sakte hain\?/i.test(userMessage):  // Roman Urdu: "What can you do?"
+                    assistantResponse = getRandomResponse([
+                        "Main aapko jokes suna sakta hoon, quotes de sakta hoon, aur kuch basic maloomat de sakta hoon.",
+                        "Main aapki madad kar sakta hoon! Aapko kis cheez ki madad chahiye?"
+                    ]);
+                    break;
+        
+                case /mujhe madad chahiye hai\?/i.test(userMessage):  // Roman Urdu: "I need help"
+                    assistantResponse = getRandomResponse([
+                        "Zaroor! Aapko kis cheez ki madad chahiye?",
+                        "Main aapki madad karne ke liye yahan hoon!"
+                    ]);
+                    break;
+        
+                default:
+                    assistantResponse = "Mujhe aapka sawal samajh nahi aaya. Kya aap kuch aur pooch sakte hain?";
+                    break;
+            }
+        
+            // Wait for 1 second before showing the assistant's response (to simulate thinking)
+            setTimeout(() => addMessage(assistantResponse, 'assistant'), 1000);
+        }
+        
+        // Helper function to pick a random response from an array
+        function getRandomResponse(responsesArray) {
+            return responsesArray[Math.floor(Math.random() * responsesArray.length)];
+        }
+        </script>
+
+
 </body>
 </html>
+<script>
+    function removePunctuation(message) {
+    return message.replace(/[^\w\s]/gi, '');  // Remove all punctuation marks
+}
+
+</script>
